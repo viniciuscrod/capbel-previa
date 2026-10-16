@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capacetes Capbel</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:ital,wght@1,900&family=Figtree:wght@500;700&display=swap">
+<style>
+  body{margin:0;background:#EAF3FB;font-family:Figtree,system-ui,sans-serif;color:#0B1A2E;padding:24px 16px}
+  h1{font-family:Saira,sans-serif;font-style:italic;font-weight:900;color:#061B34;margin:0 0 4px}
+  p{margin:0 0 20px;color:#5B6B80}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+  .c{background:#fff;border-radius:20px;padding:12px;text-align:center}
+  .c b{display:block;font-size:15px}.c small{color:#5B6B80;font-size:12.5px}
+  .lv{display:inline-block;font-family:Saira,sans-serif;font-style:italic;font-weight:900;background:#061B34;color:#fff;border-radius:8px;padding:1px 8px;margin-bottom:4px}
+</style>
+</head>
+<body>
+<h1>Capacetes Capbel</h1>
+<p>Um capacete temático por nível. Desenhos do protótipo v0.4.</p>
+<div class="grid" id="g"></div>
+<script src="capacetes.js"></script>
+<script>
+document.getElementById('g').innerHTML = CAPACETES.MODELOS.map(m=>`<div class="c"><span class="lv">Nv ${m.lv}</span>${CAPACETES.draw({modelo:m.id},160)}<b>${m.nome}</b><small>${m.tema}</small></div>`).join('');
+</script>
+</body>
+</html>
