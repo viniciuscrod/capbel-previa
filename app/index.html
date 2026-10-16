@@ -552,7 +552,7 @@ svg.fx-particulas{filter:drop-shadow(0 0 8px #FFE27A)}
 <div class="stage">
   <div class="aside">
     <img src="assets/logo-capbel.jpg" alt="Capbel, higienização e esterilização de capacetes, Belém do Pará">
-    <span class="tag">Protótipo beta · v0.7</span>
+    <span class="tag">Protótipo beta · v0.7.1</span>
     <h1>App do cliente Capbel</h1>
     <p>Mapa noturno no estilo jogo, leitura do QR Code, pagamento pelo app com tarifa menor, cashback, selos, cupons e comunidade com níveis e compartilhamento.</p>
     <p>Máquinas, preços, saldos e pagamentos são exemplos. Nenhuma cobrança é real.</p>
@@ -590,6 +590,7 @@ svg.fx-particulas{filter:drop-shadow(0 0 8px #FFE27A)}
             <button class="ctl" id="zin" aria-label="Aproximar" data-i="plus"></button>
             <button class="ctl" id="zout" aria-label="Afastar" data-i="minus"></button>
           </div>
+          <button class="ctl glass postobtn" id="temaBtn" aria-label="Alternar mapa entre dia e noite"></button>
           <button class="ctl glass postobtn" id="postoBtn" aria-pressed="true" aria-label="Mostrar ou esconder postos de gasolina" data-i="fuel"></button>
         </div>
 
@@ -991,7 +992,10 @@ function fuelIcon(t){
 }
 function addFuelIcons(){ if(!map) return; ['noite','dia'].forEach(t=>{ const id='posto-'+t; if(!map.hasImage(id)) map.addImage(id, fuelIcon(t), {pixelRatio:2}); }); }
 let curTheme=null;
-function applyTheme(){ const t=themeNow(); document.documentElement.dataset.map=t; if(map && t!==curTheme){ curTheme=t; map.setStyle(mapStyle(t)); } $('#map').style.background=MAP_THEMES[t].bg; }
+function applyTheme(){ const t=themeNow(); document.documentElement.dataset.map=t; if(map && t!==curTheme){ curTheme=t; map.setStyle(mapStyle(t)); } $('#map').style.background=MAP_THEMES[t].bg; const b=document.getElementById('temaBtn'); if(b){ b.innerHTML=icon(t==='dia'?'moon':'sun',20); b.setAttribute('aria-label', t==='dia'?'Mudar para o mapa da noite':'Mudar para o mapa do dia'); } }
+function setTema(t){ S.mapTema=t; save(); applyTheme(); if(document.getElementById('setPage')) renderSet(); }
+// a página da prévia pode trocar o tema do app embutido
+window.addEventListener('message', e=>{ const d=e.data||{}; if(d.capbel==='tema' && ['dia','noite','auto'].includes(d.valor)) setTema(d.valor); });
 setInterval(()=>{ if((S.mapTema||'auto')==='auto') applyTheme(); }, 60000);
 function initMap(){
   try{
@@ -1136,6 +1140,7 @@ function setPostos(on){
   $('#postoBtn').setAttribute('aria-pressed', on?'true':'false');
   if(map && map.getLayer('postos')) map.setLayoutProperty('postos','visibility', on?'visible':'none');
 }
+$('#temaBtn').onclick=()=>{ const t=themeNow()==='dia'?'noite':'dia'; setTema(t); toast(t==='dia'?'Mapa do dia.':'Mapa da noite.', t==='dia'?'sun':'moon'); };
 $('#postoBtn').onclick=()=>{ setPostos(S.showPostos===false); toast(S.showPostos?'Postos de gasolina visíveis no mapa.':'Postos de gasolina escondidos.','fuel'); };
 
 /* ================= folha da máquina ================= */
@@ -1505,8 +1510,8 @@ function renderSet(){
       <button class="li"><span class="ic">${icon('doc',18)}</span><span class="tx"><b>Termos de uso</b><small>Regras de reembolso e cancelamento</small></span><span class="chev">${icon('chev',18)}</span></button>
     </div>
     <button class="btn danger" id="resetDemo" style="margin-top:6px">${icon('refresh',18)} Reiniciar demonstração</button>
-    <div class="ver"><span class="wordmark" style="color:var(--navy)">CAP<b style="color:var(--blue)">BEL</b></span><br>Protótipo beta v0.7 · dados de exemplo</div>`;
-  $('#setPage').querySelectorAll('[data-mt]').forEach(b=>b.onclick=()=>{ S.mapTema=b.dataset.mt; save(); applyTheme(); renderSet(); toast('Mapa: '+b.textContent+'.', themeNow()==='dia'?'sun':'moon'); });
+    <div class="ver"><span class="wordmark" style="color:var(--navy)">CAP<b style="color:var(--blue)">BEL</b></span><br>Protótipo beta v0.7.1 · dados de exemplo</div>`;
+  $('#setPage').querySelectorAll('[data-mt]').forEach(b=>b.onclick=()=>{ setTema(b.dataset.mt); toast('Mapa: '+b.textContent+'.', themeNow()==='dia'?'sun':'moon'); });
   $('#setPage').querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{ S.notif[b.dataset.n]=!S.notif[b.dataset.n]; save(); renderSet(); });
   bindGo($('#setPage'));
   $('#setPage').querySelector('[data-howto]').onclick=()=>{ goTab('mapa'); const m=machines.find(x=>x.status==='livre'); if(m){ openMachine(m.code); $('#sheetMore').hidden=false; showHow(); } };
